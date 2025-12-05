@@ -1,0 +1,47 @@
+name: 'Deploy Cloudflare Snippets'
+description: 'Automatically deploy all snippet.js files as Cloudflare Workers Snippets'
+branding:
+  icon: 'zap'
+  color: 'orange'
+
+inputs:
+  snippets-path:
+    description: 'Folder containing your snippets (e.g. domains, snippets)'
+    required: false
+    default: 'domains'
+  zone-id:
+    description: 'Cloudflare Zone ID'
+    required: true
+  api-token:
+    description: 'Cloudflare API Token with Zone.Snippets:Edit permission'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Deploy all Cloudflare Snippets
+      env:
+        ZONE_ID: ${{ inputs.zone-id }}
+        API_TOKEN: ${{ inputs.api-token }}
+      shell: bash
+      run: |
+        ROOT="${{ inputs.snippets-path }}"
+        if [ ! -d "$ROOT" ]; then
+          echo "Folder $ROOT not found"
+          exit 0
+        fi
+
+        find "$ROOT" -type f -name "snippet.js" | sort | while read -r file; do
+          name=$(basename "$(dirname "$file")")
+          echo "Deploying snippet: $name ($file)"
+
+          curl -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/snippets/$name" \
+            -H "Authorization: Bearer $API_TOKEN" \
+            -F 'metadata={"main_module":"snippet.js"};type=application/json' \
+            -F "snippet.js=@$file;type=application/javascript+module" \
+            --fail-with-body --show-error
+
+          echo "----------------------------------------"
+        done
