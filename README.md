@@ -3,21 +3,20 @@
 Automatically deploys every `snippet.js` file found in a folder as a Cloudflare Workers Snippet.
 
 ## Expected structure
-
+```
 your-repo/
 └── domains/              ← or any folder you choose
-├── analytics/
-│   └── snippet.js
-├── security/
-│   └── snippet.js
-└── bot-fight/
-└── snippet.js
-
+    ├── analytics/
+    │   └── snippet.js
+    ├── security/
+    │   └── snippet.js
+    └── bot-fight/
+        └── snippet.js
+```
 
 Each subfolder name becomes the snippet name on Cloudflare.
 
 ## Usage
-
 ```yaml
 name: Deploy Snippets
 on:
@@ -39,3 +38,4 @@ jobs:
           snippets-path: domains
           zone-id: ${{ secrets.CF_ZONE_ID }}
           api-token: ${{ secrets.CF_API_TOKEN }}
+```
