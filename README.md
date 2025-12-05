@@ -6,12 +6,14 @@ Automatically deploys every `snippet.js` file found in a folder as a Cloudflare 
 ```
 your-repo/
 └── domains/              ← or any folder you choose
-    ├── analytics/
-    │   └── snippet.js
-    ├── security/
-    │   └── snippet.js
-    └── bot-fight/
-        └── snippet.js
+    ├── example.com/
+    │   ├── snippet_name_1/
+    │   │   └── snippet.js
+    │   └── snippet_name_2/
+    │       └── snippet.js
+    └── another-domain.com/
+        └── snippet_name_3/
+            └── snippet.js
 ```
 
 Each subfolder name becomes the snippet name on Cloudflare.
