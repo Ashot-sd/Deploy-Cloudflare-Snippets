@@ -27,19 +27,26 @@ runs:
       run: |
         ROOT="${{ inputs.snippets-path }}"
         if [ ! -d "$ROOT" ]; then
-          echo "Folder $ROOT not found"
+          echo "❌ Folder $ROOT not found"
           exit 0
         fi
 
         find "$ROOT" -type f -name "snippet.js" | sort | while read -r file; do
           name=$(basename "$(dirname "$file")")
-          echo "Deploying snippet: $name ($file)"
+          echo "🚀 Deploying snippet: $name ($file)"
 
-          curl -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/snippets/$name" \
+          response=$(curl -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/snippets/$name" \
             -H "Authorization: Bearer $API_TOKEN" \
             -F 'metadata={"main_module":"snippet.js"};type=application/json' \
             -F "snippet.js=@$file;type=application/javascript+module" \
-            --fail-with-body --show-error
+            --fail-with-body --show-error 2>&1)
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Successfully deployed: $name"
+          else
+            echo "⚠️ Failed to deploy: $name"
+            echo "$response"
+          fi
 
           echo "----------------------------------------"
         done
